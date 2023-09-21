@@ -1,6 +1,6 @@
 blueprint:
-  name: Flash Lights Blue if Rain is Forecasted for a Set Duration
-  description: Flashes selected lights blue for a set duration when rain is forecasted.
+  name: Flash Lights Blue if Rain is Forecasted for a Set Duration and Optional Time
+  description: Flashes selected lights blue for a set duration when rain is forecasted, with an optional time window.
   domain: automation
   input:
     lights:
@@ -25,14 +25,38 @@ blueprint:
           min: 1
           max: 60
           unit_of_measurement: "seconds"
+    start_time:
+      name: Start Time (Optional)
+      description: Optional start time for the automation to run. Leave empty to run anytime.
+      selector:
+        time:
+          has_default: false
+    end_time:
+      name: End Time (Optional)
+      description: Optional end time for the automation to run. Leave empty to run anytime.
+      selector:
+        time:
+          has_default: false
 
 trigger:
   platform: state
   entity_id: !input "weather_entity"
 
 condition:
-  condition: template
-  value_template: "{{ 'rain' in states(weather_entity) }}"
+  - condition: template
+    value_template: "{{ 'rain' in states(weather_entity) }}"
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: "{{ not start_time }}"
+      - condition: time
+        after: !input start_time
+  - condition: or
+    conditions:
+      - condition: template
+        value_template: "{{ not end_time }}"
+      - condition: time
+        before: !input end_time
 
 action:
   - service: light.turn_on
