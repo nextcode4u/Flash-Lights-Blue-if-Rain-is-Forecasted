@@ -27,16 +27,14 @@ blueprint:
           unit_of_measurement: "seconds"
     start_time:
       name: Start Time (Optional)
-      description: Optional start time for the automation to run. Leave empty to run anytime.
+      description: Optional start time for the automation to run.
       selector:
         time:
-          has_default: false
     end_time:
       name: End Time (Optional)
-      description: Optional end time for the automation to run. Leave empty to run anytime.
+      description: Optional end time for the automation to run.
       selector:
         time:
-          has_default: false
 
 trigger:
   platform: state
