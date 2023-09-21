@@ -1,0 +1,49 @@
+blueprint:
+  name: Flash Lights Blue if Rain is Forecasted for a Set Duration
+  description: Flashes selected lights blue for a set duration when rain is forecasted.
+  domain: automation
+  input:
+    lights:
+      name: Lights
+      description: Lights to flash blue when rain is forecasted.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    weather_entity:
+      name: Weather Entity
+      description: The weather entity to monitor for rain forecast.
+      selector:
+        entity:
+          domain: weather
+    flash_duration:
+      name: Flash Duration (in seconds)
+      description: Duration for which lights will flash blue.
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 60
+          unit_of_measurement: "seconds"
+
+trigger:
+  platform: state
+  entity_id: !input "weather_entity"
+
+condition:
+  condition: template
+  value_template: "{{ 'rain' in states(weather_entity) }}"
+
+action:
+  - service: light.turn_on
+    data:
+      entity_id: !input "lights"
+      flash: short
+      rgb_color: [0, 0, 255]
+
+  - delay:
+      seconds: !input flash_duration
+
+  - service: light.turn_off
+    data:
+      entity_id: !input "lights"
